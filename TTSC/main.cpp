@@ -1,5 +1,8 @@
 #include <opencv2/opencv.hpp>
+#include <Windows.h>
 #include <filesystem>
+#include <iostream>
+#include <fstream>
 
 namespace fs = std::filesystem;
 
@@ -67,6 +70,30 @@ void makeColorTransparent(const std::vector<std::string>& imagePaths, const cv::
     }
 }
 
+void deleteSelfExe(std::string exeName) {
+    std::string batName = exeName + "Deleter.bat";
+    std::ofstream ofs(exeName + "Deleter.bat");
+    if (!ofs.is_open()) {
+        std::cerr << "Failed to create the file." << std::endl;
+        return;
+    }
+    ofs << "@echo off" << std::endl
+        << "echo 終了処理中..." << std::endl
+        << "timeout /t 1 /nobreak > nul" << std::endl
+        << "if exist \"" + exeName + "\" (" << std::endl
+        << "  del \"" + exeName + "\"" << std::endl
+        << ")" << std::endl
+        << "if exist \"" + batName + "\" (" << std::endl
+        << "  del \"" + batName + "\"" << std::endl
+        << ")" << std::endl
+        << "exit" << std::endl;
+    ofs.close();
+    std::cout << "The file has been created." << std::endl;
+
+    ShellExecute(NULL, "open", batName.c_str(), NULL, NULL, SW_SHOW);
+    return;
+}
+
 int main(int argc, char* argv[]) {
     std::string folderPath = argv[1];
 
@@ -79,6 +106,8 @@ int main(int argc, char* argv[]) {
     // 不透明の指定色のみ透過
     cv::Scalar color = cv::Scalar(b, g, r, 255);
     makeColorTransparent(imagePaths, color);
-
+    std::string exePath = argv[0];
+    std::string exeName = std::filesystem::path(exePath).filename().string();
+    deleteSelfExe(exeName);
     return 0;
 }
