@@ -18,7 +18,6 @@ async function getColorCoords(img, { r, g, b }) {
     const pixel_a = pixels[i + 3];
 
     if (pixel_r === r && pixel_g === g && pixel_b === b && pixel_a === 255) {
-      console.log(pixel_r, pixel_g, pixel_b);
       const x = (i / 4) % canvas.width;
       const y = Math.floor(i / 4 / canvas.width);
       coordinates.push({ x, y });
@@ -28,7 +27,6 @@ async function getColorCoords(img, { r, g, b }) {
 }
 
 function getImageDataForOutput(file, color) {
-  console.log(color);
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -44,7 +42,6 @@ function getImageDataForOutput(file, color) {
         } else {
           const imageData = {
             img: img,
-            imageOrder: 1,
             fileName: file.name,
             width: img.width,
             height: img.height,
@@ -75,12 +72,10 @@ function loadColorInTextFile(file) {
   });
 }
 
-function TableLine({ imageData, setImageData }) {
+function TableLine({ imageData, index, setImageData }) {
   if (imageData === undefined) {
     return;
   }
-  console.log(imageData);
-
   const handleSplitNumChange = (e) => {
     const newImageData = { ...imageData, splitNum: Number(e.target.value) };
     setImageData(newImageData);
@@ -90,32 +85,21 @@ function TableLine({ imageData, setImageData }) {
     const newImageData = { ...imageData, frameTimeline: Number(e.target.value) };
     setImageData(newImageData);
   }
-
-  const handleImageKindChange = (e) => {
-    const newImageData = { ...imageData, imageOrder: Number(e.target.value) };
-    setImageData(newImageData);
-  }
-
+  console.log(imageData);
+  console.log(imageData.id);
   return (
     <tbody key={imageData.id}>
       <tr>
         <td width="100" height="auto">
           <img
             src={imageData.img.src}
-            alt="loaded Image"
+            alt="loaded"
             style={{
               width: `${imageData.img.width / (imageData.splitNum )}px`,
               height: `${imageData.img.height}px`,
               objectFit: 'none'
               
             }}
-          />
-        </td>
-        <td>
-            <input
-            type="number"
-            value={imageData.imageOrder}
-            onChange={handleImageKindChange}
           />
         </td>
         <td>{imageData.fileName}</td>
@@ -145,33 +129,31 @@ function Table({ imageDatas, setImageDatas }) {
   if (imageDatas.length === 0) {
     return;
   }
-  console.log(imageDatas);
   const handleSetImageData = (index, newData) => {
     setImageDatas(prevState => {
-      console.log(prevState);
-      const newState = Object.values(prevState); // prevStateを配列に変換
-      newState[index] = { ...newState[index], ...newData };
+      const newState = [...prevState]; // prevStateを配列に変換
+      newState[index] = { ...prevState[index], ...newData };
       return newState;
     });
   }
   console.log(imageDatas);
-  const tableBody = Object.keys(imageDatas).map((key, index) => {
-    const imageData = imageDatas[key];
+  console.log(imageDatas[0].id);
+  const tableBody = Object.values(imageDatas).map((imageData,index) => {
+    console.log(imageData);
     return (
       <TableLine
         imageData={imageData}
-        setImageData={(newData) => handleSetImageData(key, newData)}
-        key={key}
+        setImageData={(newData) => handleSetImageData(index, newData)}
+        index={index}
       />
     );
   });
 
   return (
     <table>
-      <thead>
+      <thead key='headder'>
         <tr>
           <th>img</th>
-          <th>imgType</th>
           <th>fileName</th>
           <th>splitNum</th>
           <th>frameTimeline</th>
@@ -184,40 +166,40 @@ function Table({ imageDatas, setImageDatas }) {
 
 
 function ImageSearch() {
-  const [imageDatas, setImageDatas] = useState({});
+  const [imageDatas, setImageDatas] = useState([]);
   const [responseText, setResponseText] = useState("");
 
   const handleDrop = async (event) => {
     event.preventDefault();
     const files = event.dataTransfer.files;
 
-    const handleImageFile = async (color, file, index) => {
+    const handleImageFile = async (color, file) => {
       try {
         const newImageData = await getImageDataForOutput(file, color);
-        setImageDatas(prevImageDatas => {
-          return { ...prevImageDatas, [index]: newImageData };
-        });
+        return newImageData;
       } catch (error) {
         console.error(error);
+        return null;
       }
     }
     try {
       const textFiles = Array.from(files).filter(file => file.type === 'text/plain');
 
       if (textFiles.length === 0) {
-        console.log('Text Undroped');
+        console.error('Text Undroped');
         return;
       }
       const color = await loadColorInTextFile(textFiles[0]);
       const imageFiles = Array.from(files).filter(file => file.type === 'image/jpeg' || file.type === 'image/png');
       if (imageFiles.length === 0) {
-        console.log('Image Undroped');
+        console.error('Image Undroped');
         return;
       }
-      await Promise.all(imageFiles.map((file, index) => handleImageFile(color, file, index)));
-
+      const newImageDatas = await Promise.all(imageFiles.map((file) => handleImageFile(color, file)));
+      const sortedDatas = ImageType.sortImageDatas(newImageDatas);
+      setImageDatas(sortedDatas);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
