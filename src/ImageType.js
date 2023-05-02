@@ -32,8 +32,8 @@ export default class ImageType {
         const sortedDatas = Object.values(imageDatas);
 
         sortedDatas.sort((data_a, data_b) => {
-            const a = data_a.fileName;
-            const b = data_b.fileName;
+            const a = data_a.fileName.slice(0, data_a.fileName.lastIndexOf("."));
+            const b = data_b.fileName.slice(0, data_b.fileName.lastIndexOf("."));
             // Rule 1: エフェクトが存在しないものが前に配置される
             const aHasEffect = a.includes('エフェクト');
             const bHasEffect = b.includes('エフェクト');

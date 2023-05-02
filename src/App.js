@@ -37,7 +37,7 @@ function getImageDataForOutput(file, color) {
       img.onload = async () => {
         const coords = await getColorCoords(img, color);
         if (coords.length !== 1) {
-          const errorMessage = `${coords.length} 個の ${color} 色の座標が ${file.name} で検出されました。`;
+          const errorMessage = `${coords.length} 個の rgb(${color.r}, ${color.b}, ${color.g})色の座標が ${file.name} で検出されました。`;
           reject(errorMessage);
         } else {
           const imageData = {
