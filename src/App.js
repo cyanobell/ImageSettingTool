@@ -72,7 +72,7 @@ function loadColorInTextFile(file) {
   });
 }
 
-function TableLine({ imageData, index, setImageData }) {
+function TableLine({ imageData, setImageData }) {
   if (imageData === undefined) {
     return;
   }
@@ -85,17 +85,16 @@ function TableLine({ imageData, index, setImageData }) {
     const newImageData = { ...imageData, frameTimeline: Number(e.target.value) };
     setImageData(newImageData);
   }
-  console.log(imageData);
-  console.log(imageData.id);
+  const IMAGE_WIDTH = 200;
   return (
     <tbody key={imageData.id}>
       <tr>
-        <td width="100" height="auto">
+        <td width={IMAGE_WIDTH} height="auto">
           <img
             src={imageData.img.src}
             alt="loaded"
             style={{
-              width: `${imageData.img.width / (imageData.splitNum )}px`,
+              width: `${ Math.min(IMAGE_WIDTH, imageData.img.width / (imageData.splitNum ))}px`,
               height: `${imageData.img.height}px`,
               objectFit: 'none'
               
@@ -144,14 +143,13 @@ function Table({ imageDatas, setImageDatas }) {
       <TableLine
         imageData={imageData}
         setImageData={(newData) => handleSetImageData(index, newData)}
-        index={index}
       />
     );
   });
 
   return (
     <table>
-      <thead key='headder'>
+      <thead key='header'>
         <tr>
           <th>img</th>
           <th>fileName</th>
@@ -178,28 +176,26 @@ function ImageSearch() {
         const newImageData = await getImageDataForOutput(file, color);
         return newImageData;
       } catch (error) {
-        console.error(error);
-        return null;
+        throw error;
       }
     }
     try {
       const textFiles = Array.from(files).filter(file => file.type === 'text/plain');
 
       if (textFiles.length === 0) {
-        console.error('Text Undroped');
-        return;
+        throw new Error('Text Undroped');
       }
       const color = await loadColorInTextFile(textFiles[0]);
       const imageFiles = Array.from(files).filter(file => file.type === 'image/jpeg' || file.type === 'image/png');
       if (imageFiles.length === 0) {
-        console.error('Image Undroped');
-        return;
+        throw new Error('Image Undroped');
       }
       const newImageDatas = await Promise.all(imageFiles.map((file) => handleImageFile(color, file)));
       const sortedDatas = ImageType.sortImageDatas(newImageDatas);
       setImageDatas(sortedDatas);
     } catch (error) {
       console.error(error);
+      setResponseText(error);
     }
   }
 
@@ -211,10 +207,14 @@ function ImageSearch() {
           width: "400px",
           height: "400px",
           marginBottom: "16px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
         onDrop={handleDrop}
         onDragOver={(event) => event.preventDefault()}
       >
+      ここにドロップ
       </div>
       <div>
         {responseText}
