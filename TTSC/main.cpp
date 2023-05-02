@@ -31,8 +31,7 @@ void backupAllImages(const std::vector<std::string>& imagePaths) {
             std::cerr << "Failed to read image file: " << imagePath << std::endl;
             continue;
         }
-        fs::path folderPath(imagePath);
-        folderPath.remove_filename();
+        fs::path folderPath = fs::path(imagePath).remove_filename();
         fs::path oldPath(imagePath);
         std::string filename = oldPath.filename().string();
         if (!fs::exists(folderPath / "src")) {
@@ -95,19 +94,19 @@ void deleteSelfExe(std::string exeName) {
 }
 
 int main(int argc, char* argv[]) {
-    std::string folderPath = argv[1];
+    std::string exePath = argv[0];
+    std::string folderPath = fs::path(exePath).remove_filename().string();
 
     std::vector<std::string> imagePaths = getImagePaths(folderPath);
     backupAllImages(imagePaths);
     // 画像の指定した色を透明にして保存
-    int r = atoi(argv[2]);
-    int g = atoi(argv[3]);
-    int b = atoi(argv[4]);
+    int r = atoi(argv[1]);
+    int g = atoi(argv[2]);
+    int b = atoi(argv[3]);
     // 不透明の指定色のみ透過
     cv::Scalar color = cv::Scalar(b, g, r, 255);
     makeColorTransparent(imagePaths, color);
-    std::string exePath = argv[0];
-    std::string exeName = std::filesystem::path(exePath).filename().string();
+    std::string exeName = fs::path(exePath).filename().string();
     deleteSelfExe(exeName);
     return 0;
 }
