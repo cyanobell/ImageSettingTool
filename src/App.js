@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ImageType from "./ImageType.js";
+import ImageTable from "./ImageTable.js";
 
 //Canvasから、指定の色がある座標を探し、座標の配列を返します。
 async function getColorCoords(img, { r, g, b }) {
@@ -72,95 +73,7 @@ function loadColorInTextFile(file) {
   });
 }
 
-function TableLine({ imageData, setImageData }) {
-  if (imageData === undefined) {
-    return;
-  }
-  const handleSplitNumChange = (e) => {
-    const newImageData = { ...imageData, splitNum: Number(e.target.value) };
-    setImageData(newImageData);
-  }
 
-  const handleFrameTimelineChange = (e) => {
-    const newImageData = { ...imageData, frameTimeline: Number(e.target.value) };
-    setImageData(newImageData);
-  }
-  const IMAGE_WIDTH = 200;
-  return (
-    <tbody key={imageData.id}>
-      <tr>
-        <td width={IMAGE_WIDTH} height="auto">
-          <img
-            src={imageData.img.src}
-            alt="loaded"
-            style={{
-              width: `${ Math.min(IMAGE_WIDTH, imageData.img.width / (imageData.splitNum ))}px`,
-              height: `${imageData.img.height}px`,
-              objectFit: 'none'
-              
-            }}
-          />
-        </td>
-        <td>{imageData.fileName}</td>
-        <td>
-          <input
-            type="number"
-            min="1"
-            value={imageData.splitNum}
-            onChange={handleSplitNumChange}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            min="1"
-            value={imageData.frameTimeline}
-            onChange={handleFrameTimelineChange}
-          />
-        </td>
-      </tr>
-    </tbody>
-  );
-
-}
-
-function Table({ imageDatas, setImageDatas }) {
-  if (imageDatas.length === 0) {
-    return;
-  }
-  const handleSetImageData = (index, newData) => {
-    setImageDatas(prevState => {
-      const newState = [...prevState]; // prevStateを配列に変換
-      newState[index] = { ...prevState[index], ...newData };
-      return newState;
-    });
-  }
-  console.log(imageDatas);
-  console.log(imageDatas[0].id);
-  const tableBody = Object.values(imageDatas).map((imageData,index) => {
-    console.log(imageData);
-    return (
-      <TableLine
-        imageData={imageData}
-        setImageData={(newData) => handleSetImageData(index, newData)}
-      />
-    );
-  });
-
-  return (
-    <table>
-      <thead key='header'>
-        <tr>
-          <th>img</th>
-          <th>fileName</th>
-          <th>splitNum</th>
-          <th>frameTimeline</th>
-        </tr>
-      </thead>
-      {tableBody}
-    </table>
-  );
-}
 
 
 function ImageSearch() {
@@ -214,12 +127,12 @@ function ImageSearch() {
         onDrop={handleDrop}
         onDragOver={(event) => event.preventDefault()}
       >
-      ここにドロップ
+        ここにドロップ
       </div>
       <div>
         {responseText}
       </div>
-      <Table imageDatas={imageDatas} setImageDatas={setImageDatas} />
+      <ImageTable imageDatas={imageDatas} setImageDatas={setImageDatas} />
     </div>
   );
 }
