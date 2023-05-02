@@ -69,6 +69,33 @@ void makeColorTransparent(const std::vector<std::string>& imagePaths, const cv::
     }
 }
 
+bool isTextFile(const fs::path& filePath) {
+    static const std::vector<std::string> textExtensions = { ".txt" };
+    return std::find(textExtensions.begin(), textExtensions.end(), filePath.extension().string()) != textExtensions.end();
+}
+
+std::string getTextPath(const std::string& folderPath) {
+    // フォルダ内の画像ファイルのパスを取得
+    std::vector<std::string> imagePaths;
+
+    for (const auto& entry : fs::directory_iterator(folderPath)) {
+        if (entry.is_regular_file() && isTextFile(entry.path())) {
+            return entry.path().string();
+        }
+    }
+    throw "Text not Found";
+}
+
+cv::Scalar readRGB(const std::string& testFilePath) {
+    std::ifstream infile(testFilePath);
+    std::string line;
+    std::getline(infile, line); // skip first line
+    int red, green, blue;
+    char comma;
+    infile >> red >> comma >> green >> comma >> blue;
+    return cv::Scalar(blue, green, red, 255);
+}
+
 void deleteSelfExe(std::string exeName) {
     std::string batName = exeName + "Deleter.bat";
     std::ofstream ofs(exeName + "Deleter.bat");
@@ -96,15 +123,13 @@ void deleteSelfExe(std::string exeName) {
 int main(int argc, char* argv[]) {
     std::string exePath = argv[0];
     std::string folderPath = fs::path(exePath).remove_filename().string();
-
     std::vector<std::string> imagePaths = getImagePaths(folderPath);
     backupAllImages(imagePaths);
-    // 画像の指定した色を透明にして保存
-    int r = atoi(argv[1]);
-    int g = atoi(argv[2]);
-    int b = atoi(argv[3]);
+    std::string textPath = getTextPath(folderPath);
+
     // 不透明の指定色のみ透過
-    cv::Scalar color = cv::Scalar(b, g, r, 255);
+    cv::Scalar color = readRGB(textPath);
+    // 画像の指定した色を透明にして保存
     makeColorTransparent(imagePaths, color);
     std::string exeName = fs::path(exePath).filename().string();
     deleteSelfExe(exeName);
