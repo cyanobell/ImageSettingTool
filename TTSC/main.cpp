@@ -63,7 +63,7 @@ void makeColorTransparent(const std::vector<std::string>& imagePaths, const cv::
         cv::merge(channels, image);
 
         // ã‘‚«•Û‘¶
-        cv::imwrite(imagePath + ".png", image);
+        cv::imwrite(imagePath, image);
     }
 }
 
