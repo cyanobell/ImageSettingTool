@@ -38,11 +38,9 @@ export default class ImageType {
       const aHasEffect = a.includes('エフェクト');
       const bHasEffect = b.includes('エフェクト');
       if (!aHasEffect && bHasEffect) {
-        console.log("rule 1");
         return -1;
       }
       if (aHasEffect && !bHasEffect) {
-        console.log("rule 1");
         return 1;
       }
 
@@ -51,21 +49,17 @@ export default class ImageType {
       const bIndex = ImageType.ImageTypeNameList.findIndex((typeName) => b.includes(typeName));
       if (aIndex !== bIndex) {
         if (aIndex !== -1 && bIndex !== -1) {
-          console.log("rule 2");
           return aIndex - bIndex;
         }
         if (aIndex !== -1) {
-          console.log("rule 2 sonoTa");
           return -1;
         }
         if (bIndex !== -1) {
-          console.log("rule 2 sonoTa");
           return 1;
         }
       }
 
       // Rule 3: 辞書順に並び替える
-      console.log("rule 3");
       return a.localeCompare(b);
     });
     return sortedDatas;

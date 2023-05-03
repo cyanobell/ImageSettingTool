@@ -1,4 +1,5 @@
-function ImageTableLine({ imageData, setImageData }) {
+function ImageTableLine({ imageData, setImageData}) {
+  const IMAGE_WIDTH = 200;
   if (imageData === undefined) {
     return;
   }
@@ -11,11 +12,10 @@ function ImageTableLine({ imageData, setImageData }) {
     const newImageData = { ...imageData, frameTimeline: Number(e.target.value) };
     setImageData(newImageData);
   }
-  const IMAGE_WIDTH = 200;
   return (
-    <tbody key={imageData.id}>
+    <tbody>
       <tr>
-        <td width={IMAGE_WIDTH} height="auto">
+        <td width={IMAGE_WIDTH} height="auto" >
           <img
             src={imageData.img.src}
             alt="loaded"
@@ -23,7 +23,6 @@ function ImageTableLine({ imageData, setImageData }) {
               width: `${Math.min(IMAGE_WIDTH, imageData.img.width / (imageData.splitNum))}px`,
               height: `${imageData.img.height}px`,
               objectFit: 'none'
-
             }}
           />
         </td>
@@ -61,12 +60,11 @@ export default function ImageTable({ imageDatas, setImageDatas }) {
       return newState;
     });
   }
-  console.log(imageDatas);
-  console.log(imageDatas[0].id);
+
   const tableBody = Object.values(imageDatas).map((imageData, index) => {
-    console.log(imageData);
     return (
       <ImageTableLine
+        key={index}
         imageData={imageData}
         setImageData={(newData) => handleSetImageData(index, newData)}
       />
@@ -74,7 +72,7 @@ export default function ImageTable({ imageDatas, setImageDatas }) {
   });
 
   return (
-    <table>
+    <table style={{ tableLayout: 'fixed' }}>
       <thead key='header'>
         <tr>
           <th>img</th>

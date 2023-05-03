@@ -18,6 +18,10 @@
 .env.test.local
 .env.production.local
 
+localhost.crt
+localhost.key
+client_secret_792450826372-29brt10o6f2c2rbg18d40hs57hr84d7t.apps.googleusercontent.com.json
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

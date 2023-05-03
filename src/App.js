@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ImageType from "./ImageType.js";
 import ImageTable from "./ImageTable.js";
+import SaveSettingFileButton from "./SaveSettingFileButton.js";
 
 //Canvasから、指定の色がある座標を探し、座標の配列を返します。
 async function getColorCoords(img, { r, g, b }) {
@@ -73,9 +74,6 @@ function loadColorInTextFile(file) {
   });
 }
 
-
-
-
 function ImageSearch() {
   const [imageDatas, setImageDatas] = useState([]);
   const [responseText, setResponseText] = useState("");
@@ -111,7 +109,7 @@ function ImageSearch() {
       setResponseText(error);
     }
   }
-
+  
   return (
     <div>
       <div
@@ -129,8 +127,12 @@ function ImageSearch() {
       >
         ここにドロップ
       </div>
+      {responseText}
       <div>
-        {responseText}
+        <SaveSettingFileButton imageDatas={imageDatas} />
+        <button onClick={() => { window.open('https://drive.google.com/file/d/1-cDyrxiIEmj6RDUfIR5KNgbbpf5ZkWHS/view?usp=share_link') }}>
+          色透過ツールDL
+        </button>
       </div>
       <ImageTable imageDatas={imageDatas} setImageDatas={setImageDatas} />
     </div>
